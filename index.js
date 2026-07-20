@@ -254,6 +254,9 @@ client.on("interactionCreate", async (interaction) => {
 
     // كاست إيمبد لشخص
     if (interaction.customId.startsWith("confirmEmbedUser_")) {
+
+        await interaction.deferReply({ ephemeral: true });
+
         const parts = interaction.customId.split("_");
         const userID = parts[1];
         const title = parts[2];
@@ -272,12 +275,12 @@ client.on("interactionCreate", async (interaction) => {
                 content: `--------------------\n\n<@${userID}>`
             });
 
-            return interaction.update({
+            return interaction.editReply({
                 content: "✔️ **تم إرسال الإيمبد للشخص بنجاح.**",
                 components: []
             });
         } catch {
-            return interaction.update({
+            return interaction.editReply({
                 content: "❌ **الشخص مقفل الخاص.**",
                 components: []
             });
@@ -286,6 +289,9 @@ client.on("interactionCreate", async (interaction) => {
 
     // كاست نصي لشخص
     if (interaction.customId.startsWith("confirmUser_")) {
+
+        await interaction.deferReply({ ephemeral: true });
+
         const userID = interaction.customId.split("_")[1];
         const user = await interaction.client.users.fetch(userID);
 
@@ -294,22 +300,21 @@ client.on("interactionCreate", async (interaction) => {
         try {
             await user.send(`${text}\n\n--------------------\n\n<@${userID}>`);
 
-            return interaction.update({
+            return interaction.editReply({
                 content: "✔️ **تم إرسال الرسالة للشخص بنجاح.**",
                 components: []
             });
         } catch {
-            return interaction.update({
+            return interaction.editReply({
                 content: "❌ **الشخص مقفل الخاص.**",
                 components: []
             });
         }
     }
 
-    // كاست للكل (مع حل مشكلة Timeout)
+    // كاست للكل (حل مشكلة Timeout نهائيًا)
     if (interaction.customId === "confirmAll") {
 
-        // أهم خطوة لحل المشكلة
         await interaction.deferReply({ ephemeral: true });
 
         const text = interaction.message.content.split("\n\n")[1];
