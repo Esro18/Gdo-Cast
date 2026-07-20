@@ -1,3 +1,6 @@
+require("dotenv").config();
+const TOKEN = process.env.TOKEN;
+
 console.log("Cast Bot Ready");
 
 // ===============================
