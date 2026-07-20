@@ -26,7 +26,6 @@ const client = new Client({
     ]
 });
 
-const TOKEN = process.env.TOKEN;
 
 // ===============================
 //        دالة التحقق من الأدمن
