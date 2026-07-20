@@ -95,7 +95,9 @@ client.on("messageCreate", async (message) => {
 
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`confirmEmbedUser_${user.id}_${title}_${desc}`)
+                    .setCustomId(
+                        `confirmEmbedUser_${user.id}_${encodeURIComponent(title)}_${encodeURIComponent(desc)}`
+                    )
                     .setLabel("✔️ تأكيد")
                     .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
@@ -146,7 +148,9 @@ client.on("messageCreate", async (message) => {
 
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`confirmEmbedAll_${title}_${desc}`)
+                    .setCustomId(
+                        `confirmEmbedAll_${encodeURIComponent(title)}_${encodeURIComponent(desc)}`
+                    )
                     .setLabel("✔️ تأكيد")
                     .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
@@ -181,7 +185,9 @@ client.on("messageCreate", async (message) => {
 
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId(`confirmEmbedRole_${role.id}_${title}_${desc}`)
+                    .setCustomId(
+                        `confirmEmbedRole_${role.id}_${encodeURIComponent(title)}_${encodeURIComponent(desc)}`
+                    )
                     .setLabel("✔️ تأكيد")
                     .setStyle(ButtonStyle.Success),
                 new ButtonBuilder()
@@ -259,8 +265,8 @@ client.on("interactionCreate", async (interaction) => {
 
         const parts = interaction.customId.split("_");
         const userID = parts[1];
-        const title = parts[2];
-        const desc = parts.slice(3).join(" ");
+        const title = decodeURIComponent(parts[2]);
+        const desc = decodeURIComponent(parts.slice(3).join("_"));
 
         const user = await interaction.client.users.fetch(userID);
 
@@ -312,7 +318,42 @@ client.on("interactionCreate", async (interaction) => {
         }
     }
 
-    // كاست للكل (حل مشكلة Timeout نهائيًا)
+    // كاست إيمبد للكل
+    if (interaction.customId.startsWith("confirmEmbedAll_")) {
+
+        await interaction.deferReply({ ephemeral: true });
+
+        const parts = interaction.customId.split("_");
+        const title = decodeURIComponent(parts[1]);
+        const desc = decodeURIComponent(parts.slice(2).join("_"));
+
+        const embed = new EmbedBuilder()
+            .setTitle(title)
+            .setDescription(`${desc}\n\n--------------------`)
+            .setColor("Gold");
+
+        const members = await interaction.guild.members.fetch();
+        let sent = 0;
+
+        for (const m of members.values()) {
+            if (m.user.bot) continue;
+
+            try {
+                await m.send({
+                    embeds: [embed],
+                    content: `--------------------`
+                });
+                sent++;
+            } catch {}
+        }
+
+        return interaction.editReply({
+            content: `✔️ **تم إرسال الإيمبد للكل (${sent}) عضو.**`,
+            components: []
+        });
+    }
+
+    // كاست نصي للكل
     if (interaction.customId === "confirmAll") {
 
         await interaction.deferReply({ ephemeral: true });
