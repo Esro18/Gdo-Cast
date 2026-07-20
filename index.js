@@ -141,7 +141,7 @@ client.on("messageCreate", async (message) => {
 
             const preview = new EmbedBuilder()
                 .setTitle(title)
-                .setDescription(`${desc}\n\n--------------------\n\n@everyone`)
+                .setDescription(`${desc}\n\n--------------------`)
                 .setColor("Gold");
 
             const row = new ActionRowBuilder().addComponents(
@@ -220,7 +220,7 @@ client.on("messageCreate", async (message) => {
 
         // كاست نصي للكل
         const text = args.join(" ");
-        const preview = `📢 **معاينة للكل**\n\n${text}\n\n--------------------\n\n@everyone`;
+        const preview = `📢 **معاينة للكل**\n\n${text}\n\n--------------------`;
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
@@ -306,8 +306,12 @@ client.on("interactionCreate", async (interaction) => {
         }
     }
 
-    // كاست إيمبد للكل
+    // كاست للكل (مع حل مشكلة Timeout)
     if (interaction.customId === "confirmAll") {
+
+        // أهم خطوة لحل المشكلة
+        await interaction.deferReply({ ephemeral: true });
+
         const text = interaction.message.content.split("\n\n")[1];
 
         const members = await interaction.guild.members.fetch();
@@ -317,12 +321,12 @@ client.on("interactionCreate", async (interaction) => {
             if (m.user.bot) continue;
 
             try {
-                await m.send(`${text}\n\n--------------------\n\n@everyone`);
+                await m.send(`${text}\n\n--------------------`);
                 sent++;
             } catch {}
         }
 
-        return interaction.update({
+        return interaction.editReply({
             content: `✔️ **تم إرسال الرسالة للكل (${sent}) عضو.**`,
             components: []
         });
